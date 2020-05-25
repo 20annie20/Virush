@@ -1,15 +1,17 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityStandardAssets.CrossPlatformInput;
-
-public class Player : Creature, IDamageable
+using UnityStandardAssets.CrossPlatformInput; //sterowanie mobilne
+public class Player : Creature, IDamageable //creature - klasa po której dziedziczy player
+   //idamageable - interfejs którego używa
 {
+    //kompontent symulacji fizyki obiektów
     private Rigidbody2D playerbody;
+    //wyświetla to w edytorze, jest modyfikowalne stamtąd
     [SerializeField]
     private readonly float jumpforce = 5.0f;
     private bool resetJumpNeeded = false;
     public float speed = 4.0f;
+    //dalej dostajemy do tych komponentów
     private PlayerAnimation _playerAnim;
     public SpriteRenderer _playerSprite;
     public SpriteRenderer _bulletSprite;
@@ -34,9 +36,10 @@ public class Player : Creature, IDamageable
         get => speedRate;
         set => speedRate = value;
     }
-
+    //wykonuje się zawsze przy instancji obiektu
     private void Start()
     {
+        //dostajemy wszystkie komponenty
         playerbody = GetComponent<Rigidbody2D>();
         _playerAnim = GetComponent<PlayerAnimation>();
         _playerSprite = GetComponentInChildren<SpriteRenderer>();
@@ -48,25 +51,25 @@ public class Player : Creature, IDamageable
         UIManager.Instance.RenewPanelCoins(Coins);
         UIManager.Instance.RenewPanelHealth(Health);
         Debug.Log("Health: " + Health + ", coins: " + Coins);
-        if(speedRate == 0)
+
+        //floats are inprecise, also this SHOULD handle the non-existing save file
+        if (speedRate < 0.01f)
         {
             Debug.Log("speed rate = " + SpeedRate);
             speedRate = 1;        
         }
-        if(damageValue == 0)
+        if(damageValue < 0.01f)
         {
             Debug.Log("damage value = " + DamageValue);
             damageValue = 1;
         }
-        if (MaxHealth == 0)   // add value 10 because on start it is 0
+        if (MaxHealth < 0.01f)   // add value 10 because on start it is 0
         {
             Debug.Log("max health = " + MaxHealth);
             MaxHealth = 10;
         }
-   
- 
     }
-
+    //wykonuje się co klatkę
     private void Update()
     {
         if (isAlive && PauseMenu.isGamePaused == false)
@@ -80,7 +83,9 @@ public class Player : Creature, IDamageable
     public void GetDamage(int power)
     {
         Health--;
+        //to jest zależne od respondu playera
         UIManager.Instance.RenewPanelHealth(Health);
+        ChangeColorWhenDamaged();
         if (Health < 1)
         {
 
@@ -90,8 +95,7 @@ public class Player : Creature, IDamageable
             WaitAMomentRoutine();
             UIManager.Instance.OpenGameOver();
             pickedCoins = 0;
-            Health = MaxHealth;
-            
+            Health = MaxHealth;     
         }
     }
 
@@ -107,7 +111,10 @@ public class Player : Creature, IDamageable
     }
     private void MoveHorizontally()
     {
+        //tylko joystick
         float move = CrossPlatformInputManager.GetAxisRaw("Horizontal");
+        //sterowanie z klawiatury 
+        //float debugMove = Input.GetAxis("Horizontal");
         if (move > 0)
         {
             _playerSprite.flipX = false;
@@ -124,9 +131,10 @@ public class Player : Creature, IDamageable
     private void Jump()
     {
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() || CrossPlatformInputManager.GetButtonDown("JumpButton") && IsGrounded())
-        {
+        { 
             playerbody.velocity = new Vector2(playerbody.velocity.x, jumpforce);
             _playerAnim.Jump(true);
+            //zamiast watków, działa równolegle z wątkiem player
             StartCoroutine(ResetJumpRoutine());
         }
         else
@@ -214,4 +222,3 @@ public class Player : Creature, IDamageable
         yield return new WaitForSeconds(1.5f);
     }
 }
-
