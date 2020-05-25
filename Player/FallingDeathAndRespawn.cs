@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FallingDeathAndRespawn : MonoBehaviour
 {
     public GameManager gameManager;
 
+    //kiedy wykryjesz zderzenie z innym coliderem
     private void OnTriggerEnter2D(Collider2D other)
     {
         Vector3 checkpoint = new Vector3(-6.1f, 1f, 0f);
