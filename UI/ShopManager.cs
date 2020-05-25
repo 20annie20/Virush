@@ -1,4 +1,4 @@
-﻿using UnityEngine.UI;
+using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
@@ -67,12 +67,15 @@ public class ShopManager : MonoBehaviour
     public void BuyUpdateSpeed(Player player )
     {
         //variable player.SpeedRate
+        //sprawdza, czy stać biedaka
         if (player.Coins >= priceS && updateSpeed < 3 && player.SpeedRate < 1.8)
         {
+            //wyciągamy hajs z portfela
             player.Coins -= priceS;
             player.SpeedRate += 0.2f;
             
             playerCoinsCountText.text = "Coins: " + player.Coins + " C";
+            //stać więc burżuj wydaje
             StatusUpdateSpeed(player);
         }
     }
